@@ -56,20 +56,29 @@ async fn main() -> Result<()> {
                     .finalize()
             );
 
-            let mut ev = Event::new(hash, y.due_at?.format("%Y%m%dT%H%M%SZ").to_string());
-            ev.push(Property::new("SUMMARY", name));
-            ev.push(Property::new(
-                "DTSTART",
-                y.due_at?.format("%Y%m%dT%H%M%SZ").to_string(),
-            ));
-            ev.push(Property::new(
-                "DTEND",
-                y.due_at?.format("%Y%m%dT%H%M%SZ").to_string(),
-            ));
-            if let Some(url) = y.html_url {
-                ev.push(Property::new("LOCATION", url));
-            }
-            Some(ev)
+            Some(
+                vec![
+                    Some(Property::new("SUMMARY", name)),
+                    Some(Property::new(
+                        "DTSTART",
+                        y.due_at?.format("%Y%m%dT%H%M%SZ").to_string(),
+                    )),
+                    Some(Property::new(
+                        "DTEND",
+                        y.due_at?.format("%Y%m%dT%H%M%SZ").to_string(),
+                    )),
+                    y.html_url.map(|url| Property::new("LOCATION", url)),
+                ]
+                .into_iter()
+                .filter_map(|x| x)
+                .fold(
+                    Event::new(hash, y.due_at?.format("%Y%m%dT%H%M%SZ").to_string()),
+                    |mut acc, prop| {
+                        acc.push(prop);
+                        acc
+                    },
+                ),
+            )
         })
         .fold(ICalendar::new("2.0", "ics-rs"), |mut acc, ev| {
             acc.add_event(ev);
