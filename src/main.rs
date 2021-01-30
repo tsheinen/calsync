@@ -4,9 +4,12 @@ use crate::canvas::get_assignments;
 use color_eyre::eyre::Result;
 use ics::components::Property;
 use ics::{Event, ICalendar};
-use uuid::Uuid;
-use structopt::StructOpt;
+use sha2::{Digest, Sha256, Sha512};
+use std::collections::hash_map::DefaultHasher;
+use std::hash::{Hash, Hasher};
 use std::path::PathBuf;
+use structopt::StructOpt;
+use uuid::Uuid;
 
 #[derive(Debug, StructOpt)]
 #[structopt(about, author)]
@@ -17,30 +20,52 @@ struct Args {
     output: PathBuf,
 }
 
-
 #[tokio::main]
 async fn main() -> Result<()> {
     let opts = Args::from_args();
     dotenv::dotenv()?;
     pretty_env_logger::init();
     let courses = canvas::get_courses(&opts.canvas_url).await?;
-    let assignments = futures::future::join_all(courses.iter().map(|x| get_assignments(&opts.canvas_url, x.id)))
-        .await
-        .into_iter()
-        .filter_map(|x| x.ok())
-        .collect::<Vec<_>>();
+    let assignments = futures::future::join_all(
+        courses
+            .iter()
+            .map(|x| get_assignments(&opts.canvas_url, x.id)),
+    )
+    .await
+    .into_iter()
+    .filter_map(|x| x.ok())
+    .collect::<Vec<_>>();
 
     let cal = assignments
         .into_iter()
         .flat_map(|x| x.into_iter())
         .filter_map(|y| {
-            let mut ev = Event::new(
-                Uuid::new_v4().to_string(),
-                y.due_at?.format("%Y%m%dT%H%M%SZ").to_string(),
+            let name = y.name.unwrap_or("".to_string());
+
+            let hash = format!(
+                "{:x}",
+                Sha256::new()
+                    .chain(&name.bytes().collect::<Vec<_>>())
+                    .chain(
+                        &y.due_at?
+                            .format("%Y%m%dT%H%M%SZ")
+                            .to_string()
+                            .bytes()
+                            .collect::<Vec<_>>(),
+                    )
+                    .finalize()
             );
-            ev.push(Property::new("SUMMARY", y.name.unwrap_or("".to_string())));
-            ev.push(Property::new("DTSTART", y.due_at?.format("%Y%m%dT%H%M%SZ").to_string()));
-            ev.push(Property::new("DTEND", y.due_at?.format("%Y%m%dT%H%M%SZ").to_string()));
+
+            let mut ev = Event::new(hash, y.due_at?.format("%Y%m%dT%H%M%SZ").to_string());
+            ev.push(Property::new("SUMMARY", name));
+            ev.push(Property::new(
+                "DTSTART",
+                y.due_at?.format("%Y%m%dT%H%M%SZ").to_string(),
+            ));
+            ev.push(Property::new(
+                "DTEND",
+                y.due_at?.format("%Y%m%dT%H%M%SZ").to_string(),
+            ));
             if let Some(url) = y.html_url {
                 ev.push(Property::new("LOCATION", url));
             }
