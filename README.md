@@ -3,7 +3,7 @@
 disclaimer: if you give me your canvas token i can do very nasty things to your canvas account please audit this code yourself before you run or ill be sad
 
 
-anyway it'll use the Canvas API to grab assigments and output an ical file.  For it to work you'll need the canvas session token (which can be pulled from cookies) inside the environmental variable CANVAS_SESSION
+anyway it'll use the Canvas API to grab assigments and output an ical file.  For it to work you'll need a canvas token (which can be generated in your profile) inside the environmental variable CANVAS_TOKEN
 
 ```text
 calsync 0.1.0

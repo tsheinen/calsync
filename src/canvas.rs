@@ -22,32 +22,24 @@ pub struct Assignment {
 }
 
 pub async fn get_courses(canvas_url: &str) -> Result<Vec<Course>> {
-    let res = reqwest::Client::new()
+    Ok(reqwest::Client::new()
         .get(&format!("{}/api/v1/courses", canvas_url))
-        .header(
-            "Cookie",
-            format!("canvas_session={}", std::env::var("CANVAS_SESSION")?),
-        )
+        .bearer_auth(std::env::var("CANVAS_TOKEN")?)
         .send()
-        .await?;
-    Ok(serde_json::from_str::<Vec<Course>>(
-        &res.text().await?.chars().skip(9).collect::<String>(),
-    )?)
+        .await?
+        .json()
+        .await?)
 }
 
 pub async fn get_assignments(canvas_url: &str, course_id: usize) -> Result<Vec<Assignment>> {
-    let res = reqwest::Client::new()
+    Ok(reqwest::Client::new()
         .get(&format!(
             "{}/api/v1/courses/{}/assignments",
             canvas_url, course_id
         ))
-        .header(
-            "Cookie",
-            format!("canvas_session={}", std::env::var("CANVAS_SESSION")?),
-        )
+        .bearer_auth(std::env::var("CANVAS_TOKEN")?)
         .send()
-        .await?;
-    Ok(serde_json::from_str::<Vec<Assignment>>(
-        &res.text().await?.chars().skip(9).collect::<String>(),
-    )?)
+        .await?
+        .json()
+        .await?)
 }
