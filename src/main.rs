@@ -4,20 +4,17 @@ use crate::canvas::get_assignments;
 use color_eyre::eyre::Result;
 use ics::components::Property;
 use ics::{Event, ICalendar};
-use sha2::{Digest, Sha256, Sha512};
-use std::collections::hash_map::DefaultHasher;
-use std::hash::{Hash, Hasher};
+use sha2::{Digest, Sha256};
 use std::path::PathBuf;
 use structopt::StructOpt;
-use uuid::Uuid;
 
 #[derive(Debug, StructOpt)]
 #[structopt(about, author)]
 struct Args {
     #[structopt(short, long, default_value = "https://canvas.instructure.com")]
     canvas_url: String,
-    #[structopt(short, long, default_value = "assignments.ics")]
-    output: PathBuf,
+    #[structopt(short, long)]
+    output: Option<PathBuf>,
 }
 
 #[tokio::main]
@@ -85,6 +82,10 @@ async fn main() -> Result<()> {
             acc
         });
 
-    cal.save_file(&opts.output)?;
+    if let Some(filename) = opts.output {
+        cal.save_file(filename)?;
+    } else {
+        cal.write(std::io::stdout())?;
+    }
     Ok(())
 }
