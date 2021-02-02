@@ -18,7 +18,7 @@ struct Args {
 #[tokio::main]
 async fn main() -> Result<()> {
     let opts = Args::from_args();
-    dotenv::dotenv()?;
+    dotenv::dotenv();
     pretty_env_logger::init();
     let courses = canvas::get_courses(&opts.canvas_url).await?;
     let cal = futures::future::join_all(
