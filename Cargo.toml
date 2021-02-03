@@ -4,6 +4,7 @@ version = "0.1.0"
 authors = ["Teddy Heinen <teddy@heinen.dev>"]
 edition = "2018"
 description = "CLI tool to copy assignments off of canvas and into ICS format"
+repository = "https://github.com/tcheinen/calsync"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
