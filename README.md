@@ -25,6 +25,12 @@ OPTIONS:
     -o, --output <output>
 ```
 
+## install this
+
+```bash
+cargo install calsync
+```
+
 ## what can i do with this
 
 Not a lot when used on it's own.  You can import the ICS file manually every so often and it saves you some time from inputting the assignments manually.  Let's think bigger though -- how can we set this up as something we can stick in a cron job and forget about?  Composition with existing tools, of course!  
