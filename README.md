@@ -3,7 +3,7 @@
 disclaimer: if you give me your canvas token i can do very nasty things to your canvas account please audit this code yourself before you run or ill be sad
 
 
-anyway it'll use the Canvas API to grab assigments and output an ical file.  For it to work you'll need a canvas token (which can be generated in your profile) inside the environmental variable CANVAS_TOKEN
+anyway it'll use the Canvas API to grab assigments and output an ical file.  For it to work you'll need a canvas token (which can be generated in your profile under Approved Integrations) inside the environmental variable CANVAS_TOKEN
 
 * Event UID is a SHA256 hash of event name + timestamp -- this is to prevent duplicates when importing multiple times
 * if an output file is not specified it will write to stdout
