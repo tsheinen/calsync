@@ -33,10 +33,12 @@ cargo install calsync
 
 ## what can i do with this
 
-Not a lot when used on it's own.  You can import the ICS file manually every so often and it saves you some time from inputting the assignments manually.  Let's think bigger though -- how can we set this up as something we can stick in a cron job and forget about?  Composition with existing tools, of course!  
+Not a lot when used on it's own.  You can import the ICS file manually every so often and it saves you some time from inputting the assignments manually.  Let's think bigger though -- how can we set this up as something we can stick in a cron job and forget about?  Composition with [existing tools](https://github.com/insanum/gcalcli), of course!  
 
 ```bash
 calsync --canvas-url https://canvas.tamu.edu  | gcalcli --nocache import --calendar="assignments"  
 ```
+
+I use Linux so I just have this running every 12 hours in a cron job and I know [something similar](https://en.wikipedia.org/wiki/Windows_Task_Scheduler) can be done with Windows.  If you use OS X you're on your own lol i've never used it.  
 
 Note: I'm using a fork of gcalcli that preserves UID when importing and as such will not import duplicates.  I made a PR so hopefully this'll be default behavior eventually.   
